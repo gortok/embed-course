@@ -1,0 +1,314 @@
+/** \file alarm.c
+*
+* @brief Alarm Manager
+*
+* @par
+* COPYRIGHT NOTICE: (c) 2014 Barr Group, LLC.
+* All rights reserved.
+*/
+
+#include <assert.h>
+#include <stdint.h>
+#include <stdio.h>
+			
+#include "os.h"
+#include "iorx63n.h"
+#include "scuba.h"
+#include "alarm.h"
+#include "adc.h"
+#define M_TO_MM 1000
+#define MAX_ASCENT_RATE 15
+#define MAX_SAFE_DEPTH  -40
+
+
+// PWM Prescalars
+typedef enum { TONE_HI = 450, TONE_MED = 700, TONE_LO = 950 } pwm_t;
+
+// Waveform Data Structure
+typedef struct
+{
+	pwm_t	    tone1;      // PWM prescalar for Tone 1.
+	pwm_t	    tone2;      // PWM prescalar for Tone 2.
+	uint16_t    interval;   // Seconds to play each tone, unless chopped.
+	uint8_t	    b_chopped;  // Ignore interval, use on/off chop instead.
+
+} wave_t;
+
+const wave_t   alarm_low    = { TONE_LO,  TONE_MED, 2, 0};
+const wave_t   alarm_medium = { TONE_MED, TONE_HI,  1, 0};
+const wave_t   alarm_high   = { TONE_LO,  TONE_HI,  1, 1};
+
+
+// Speaker Task Items
+#define SPEAKER_PRIO        11    // WARNING: Hard coded here; not using main.
+#define TASK_STACK_SIZE     128
+
+static CPU_STK g_speaker_stack[TASK_STACK_SIZE];
+static OS_TCB  g_speaker_tcb;
+OS_FLAG_GRP g_alarm_flags;
+/*!
+*
+* @brief Configure a timer to drive the speaker via PWM.
+*/
+static void
+speaker_config (void)
+{
+  SYSTEM.PRCR.WORD = 0xA50B; /* Protect off */
+  
+  SYSTEM.MSTPCRA.BIT.MSTPA13 = 0;  // Enable TPU0.
+  
+  SYSTEM.PRCR.WORD = 0xA500; /* Protect on  */
+  
+  TPUA.TSTR.BIT.CST0 = 0;     /* Stop TPU 0 */
+  
+  MPC.PWPR.BIT.B0WI  = 0;  /* En writing to PFS registers              */
+  MPC.PWPR.BIT.PFSWE = 1;
+  MPC.P17PFS.BYTE  = 0x03; /* 3 defines P17 to be TIOCB0, with no IRQ. */
+  MPC.PWPR.BIT.PFSWE = 0;  /* Dis writing to PFS registers             */
+  MPC.PWPR.BIT.B0WI  = 1;
+
+  // Configure the hardware in preparation for speaker tones.
+  // The TIOCB0 output goes to port 1 bit 7 (the AUDIO_R signal)
+  // No need to explicitly set this as an output since the MTU does that
+  TPU0.TCR.BIT.TPSC = 0x03;       // Prescale by 64. (p. 854)
+  TPU0.TCR.BIT.CCLR = 0x01;       // Select clear counter on TGRA match. (p. 855)
+  TPU0.TIORH.BIT.IOA = 0x0;       // TIOCA0 output disabled
+  TPU0.TIORH.BIT.IOB = 0x02;        // TIOCB0 pin initial low, high on match. (p. 873)
+  TPU0.TIORL.BIT.IOC = 0x04;       // TIOCC0 output disabled
+  TPU0.TIORL.BIT.IOD = 0x04;       // TIOCD0 output disabled
+  TPU0.TMDR.BIT.MD  = 0x03; // PWM mode 2 - page 859
+  TPU0.TGRA = 400;          // frequency of 1000 Hz
+  TPU0.TGRB = 375;          // 50% duty cycle
+
+  PORT1.PDR.BIT.B7 = 1;    /* Set P17 as output. */
+  PORT1.PMR.BIT.B7 = 1;    /* Set P17 as peripheral function bit */
+
+ // Ensure that the speaker is off.
+  TPUA.TSTR.BIT.CST0 = 0;     /* Stop TPU 0 */
+}
+
+/*!
+* @brief Speaker Task
+* @param[in] p_arg Waveform to play.
+*/
+void
+speaker_task (void * p_arg)
+{
+    wave_t *  p_waveform = (wave_t *) p_arg;
+    OS_ERR    err;
+	
+
+    if (p_waveform->b_chopped)
+    {
+        // Create a chopped sound.
+	    for (;;)
+        {
+            // Play Tone 1.
+	        TPU0.TGRA = p_waveform->tone1;
+	        TPUA.TSTR.BIT.CST0 = 1;	// On
+	        OSTimeDlyHMSM(0, 0, 0, 125, OS_OPT_TIME_HMSM_STRICT, &err);
+	        TPUA.TSTR.BIT.CST0 = 0;	// Off
+	        OSTimeDlyHMSM(0, 0, 0, 125, OS_OPT_TIME_HMSM_STRICT, &err);
+	        TPUA.TSTR.BIT.CST0 = 1;	// On
+	        OSTimeDlyHMSM(0, 0, 0, 125, OS_OPT_TIME_HMSM_STRICT, &err);
+	        TPUA.TSTR.BIT.CST0 = 0;	// Off
+	        OSTimeDlyHMSM(0, 0, 0, 125, OS_OPT_TIME_HMSM_STRICT, &err);
+			
+            // Play Tone 2.
+	        TPU0.TGRA = p_waveform->tone2;
+	        TPUA.TSTR.BIT.CST0 = 1;	// On
+	        OSTimeDlyHMSM(0, 0, 0, 125, OS_OPT_TIME_HMSM_STRICT, &err);
+	        TPUA.TSTR.BIT.CST0 = 0;	// Off
+	        OSTimeDlyHMSM(0, 0, 0, 125, OS_OPT_TIME_HMSM_STRICT, &err);
+	        TPUA.TSTR.BIT.CST0 = 1;	// On
+	        OSTimeDlyHMSM(0, 0, 0, 125, OS_OPT_TIME_HMSM_STRICT, &err);
+	        TPUA.TSTR.BIT.CST0 = 0;	// Off
+	        OSTimeDlyHMSM(0, 0, 0, 125, OS_OPT_TIME_HMSM_STRICT, &err);	
+	    }
+    }
+    else
+    {
+        // No chopping.
+	    for (;;)
+        {
+            // Play Tone 1.
+	        TPU0.TGRA = p_waveform->tone1;
+	        TPUA.TSTR.BIT.CST0 = 1;	// On
+	        OSTimeDlyHMSM(0, 0, p_waveform->interval, 0, OS_OPT_TIME_HMSM_STRICT, &err);
+	        TPUA.TSTR.BIT.CST0 = 0;	// Off
+
+            // Play Tone 2.
+	        TPU0.TGRA = p_waveform->tone2;
+	        TPUA.TSTR.BIT.CST0 = 1;	// On
+	        OSTimeDlyHMSM(0, 0, p_waveform->interval, 0, OS_OPT_TIME_HMSM_STRICT, &err);
+	        TPUA.TSTR.BIT.CST0 = 0;	// Off
+	    }
+    }
+}
+
+
+/*!
+*
+* @brief Alarm Task
+*/
+void
+alarm_task (void * p_arg)
+{
+    wave_t const *  p_waveform = (wave_t *) NULL;
+    uint8_t         b_speaker_task_alive = 0;
+    uint8_t         b_create_speaker_task;
+    OS_ERR		    err;		
+
+
+    (void)p_arg;    // NOTE: Silence compiler warning about unused param.
+
+    // Configure the speaker hardware.
+    speaker_config();
+
+    for (;;)	
+    {
+        // TODO: Do nothing until there is a signal from another task.
+	uint16_t result = OSFlagPend(&g_alarm_flags, HIGH_ALARM + MEDIUM_ALARM+ LOW_ALARM + NO_ALARM, 0, OS_OPT_PEND_FLAG_SET_ANY + OS_OPT_PEND_FLAG_CONSUME, (void *)0, &err);	
+        // Assume for now there's no new task creation to do.
+        b_create_speaker_task = 0;
+		
+        // Ensure the proper alarm is playing.
+        if (result == HIGH_ALARM)
+        {
+            // High priority alarm should be playing.
+            if (p_waveform != &alarm_high)
+            {
+                // Wrong alarm playing.
+		if (b_speaker_task_alive)
+                {
+                    // Kill the speaker task.
+		    OSTaskDel(&g_speaker_tcb, &err);	
+                    assert(OS_ERR_NONE == err);
+		    b_speaker_task_alive = 0;
+		
+                    // Ensure the speaker is off.
+                    TPUA.TSTR.BIT.CST0 = 0;						
+		}
+
+                // Select the correct waveform.
+		p_waveform = &alarm_high;
+		b_create_speaker_task = 1;
+	    }
+	}
+        else if (result == MEDIUM_ALARM)
+        {
+            // Medium priority alarm should be playing.
+	    if (p_waveform != &alarm_medium)
+            {
+                // Wrong alarm playing.
+	        if (b_speaker_task_alive)
+                {
+                    // Kill the speaker task.
+		    OSTaskDel(&g_speaker_tcb, &err);
+                    assert(OS_ERR_NONE == err);
+		    b_speaker_task_alive = 0;
+		
+                    // Ensure the speaker is off.
+                    TPUA.TSTR.BIT.CST0 = 0;						
+		}
+
+                // Select the correct waveform.
+		p_waveform = &alarm_medium;
+		b_create_speaker_task = 1;
+	    }
+	}
+        else if (result == LOW_ALARM)
+        {
+            // Low priority alarm should be playing.
+	    if (p_waveform != &alarm_low)
+            {
+                // Wrong alarm playing.
+	        if (b_speaker_task_alive)
+                {
+                    // Kill the speaker task.
+	            OSTaskDel(&g_speaker_tcb, &err);
+                    assert(OS_ERR_NONE == err);
+	            b_speaker_task_alive = 0;
+
+                    // Ensure the speaker is off.
+	            TPUA.TSTR.BIT.CST0 = 0;										
+	        }
+		
+                // Select the correct waveform.
+                p_waveform = &alarm_low;
+	        b_create_speaker_task = 1;
+	    }
+	}
+        else if (result == NO_ALARM)
+        {
+            // No alarm should be playing.
+	    if (b_speaker_task_alive)
+            {
+                // Kill the speaker task.
+	        OSTaskDel(&g_speaker_tcb, &err);
+                assert(OS_ERR_NONE == err);
+	        b_speaker_task_alive = 0;
+
+                // Ensure the speaker is off.
+	        TPUA.TSTR.BIT.CST0 = 0;
+	    }
+
+            // Select the correct waveform
+            p_waveform = NULL;
+            b_create_speaker_task = 0;
+	}
+        else
+        {
+            // We should never get here.
+            assert(0);
+        }
+		
+        // If necessary, create a speaker task to play the new tone.
+	if (b_create_speaker_task)
+        {
+            OSTaskCreate(
+                (OS_TCB     *)&g_speaker_tcb,
+                (CPU_CHAR   *)"Speaker Task",
+                (OS_TASK_PTR ) speaker_task,
+                (void       *) p_waveform,
+                (OS_PRIO     ) SPEAKER_PRIO,
+                (CPU_STK    *)&g_speaker_stack[0],
+                (CPU_STK_SIZE) TASK_STACK_SIZE / 10u,
+                (CPU_STK_SIZE) TASK_STACK_SIZE,
+                (OS_MSG_QTY  ) 0u,
+                (OS_TICK     ) 0u,
+                (void       *) 0,
+                (OS_OPT      ) 0,
+                (OS_ERR     *)&err);
+	        assert(OS_ERR_NONE == err);
+
+	        b_speaker_task_alive = 1;
+	    }
+    }
+}
+
+void CheckAlarmFlags(int32_t depth_m,int32_t ascent_rate_m_min,uint32_t air_in_tank)
+{
+  OS_ERR err;
+  
+  if(  (uint32_t) gas_to_surface_in_cl(depth_m / M_TO_MM) > air_in_tank)
+  {
+    OSFlagPost (&g_alarm_flags,ALARM_HIGH,OS_OPT_POST_FLAG_SET,&err);
+    assert(OS_ERR_NONE == err);
+  }
+  else if( MAX_ASCENT_RATE < ascent_rate_m_min)
+  {
+    OSFlagPost (&g_alarm_flags,ALARM_MEDIUM,OS_OPT_POST_FLAG_SET,&err);
+    assert(OS_ERR_NONE == err);
+  }
+  else if(MAX_SAFE_DEPTH < depth_m)
+  {
+    OSFlagPost (&g_alarm_flags,ALARM_LOW,OS_OPT_POST_FLAG_SET,&err);
+    assert(OS_ERR_NONE == err);
+  }
+  else 
+  {
+    OSFlagPost (&g_alarm_flags,ALARM_NONE,OS_OPT_POST_FLAG_SET,&err);
+    assert(OS_ERR_NONE == err);
+  }
+}

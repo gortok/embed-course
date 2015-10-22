@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+  <project>
+    <path>$WS_DIR$\Exercise0\Exercise0.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Exercise1\Exercise1.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Exercise2\Exercise2.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Exercise4\Exercise4.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Exercise5\Exercise5.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Exercise6\Exercise6.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Exercise7\Exercise7.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Exercise8\Exercise8.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Exercise9\Exercise9.ewp</path>
+  </project>
+  <batchBuild/>
+</workspace>
+
+

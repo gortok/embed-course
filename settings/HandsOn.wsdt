@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<Workspace>
+  <ConfigDictionary>
+    
+    
+    
+  <CurrentConfigs><Project>Capstone/Debug</Project><Project>Exercise0/Debug</Project><Project>Exercise1/Debug</Project><Project>Exercise2/Debug</Project><Project>Exercise3/Debug</Project><Project>Exercise4/Debug</Project><Project>Exercise5/Debug</Project><Project>Exercise6/Debug</Project><Project>Exercise7/Debug</Project><Project>Exercise8/Debug</Project></CurrentConfigs><CurrentProj>Exercise8</CurrentProj><OverviewSelected>0</OverviewSelected></ConfigDictionary>
+  <Desktop>
+    <Static>
+      <Build>
+        
+        
+        
+        
+      <ColumnWidth0>20</ColumnWidth0><ColumnWidth1>970</ColumnWidth1><ColumnWidth2>662</ColumnWidth2><ColumnWidth3>90</ColumnWidth3></Build>
+      <Workspace>
+        <ColumnWidths>
+          
+          
+          
+          
+        <Column0>236</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
+      </Workspace>
+      <Find-in-Files>
+        
+        
+        
+      <ColumnWidth0>644</ColumnWidth0><ColumnWidth1>92</ColumnWidth1><ColumnWidth2>1104</ColumnWidth2><ColumnWidth3>268</ColumnWidth3></Find-in-Files>
+      <Debug-Log>
+        
+        
+      <ColumnWidth0>20</ColumnWidth0><ColumnWidth1>1803</ColumnWidth1></Debug-Log>
+      <TerminalIO/>
+    </Static>
+    <Windows>
+      
+      
+    <Wnd0>
+        <Tabs>
+          <Tab>
+            <Identity>TabID-32761-14686</Identity>
+            <TabName>Build</TabName>
+            <Factory>Build</Factory>
+            <Session/>
+          </Tab>
+          <Tab>
+            <Identity>TabID-22599-20198</Identity>
+            <TabName>Find in Files</TabName>
+            <Factory>Find-in-Files</Factory>
+            <Session/>
+          </Tab>
+          <Tab>
+            <Identity>TabID-31026-20449</Identity>
+            <TabName>Debug Log</TabName>
+            <Factory>Debug-Log</Factory>
+            <Session/>
+          </Tab>
+        </Tabs>
+        
+      <SelectedTab>0</SelectedTab></Wnd0><Wnd1>
+        <Tabs>
+          <Tab>
+            <Identity>TabID-10742-14689</Identity>
+            <TabName>Workspace</TabName>
+            <Factory>Workspace</Factory>
+            <Session>
+              
+            <NodeDict><ExpandedNode>&lt;ws&gt;</ExpandedNode><ExpandedNode>Capstone</ExpandedNode><ExpandedNode>Exercise0</ExpandedNode><ExpandedNode>Exercise1</ExpandedNode><ExpandedNode>Exercise1/3rdParty</ExpandedNode><ExpandedNode>Exercise1/bsp.c</ExpandedNode><ExpandedNode>Exercise2</ExpandedNode><ExpandedNode>Exercise3</ExpandedNode><ExpandedNode>Exercise4</ExpandedNode><ExpandedNode>Exercise4/BSP</ExpandedNode><ExpandedNode>Exercise5</ExpandedNode><ExpandedNode>Exercise6</ExpandedNode><ExpandedNode>Exercise7</ExpandedNode><ExpandedNode>Exercise8</ExpandedNode><ExpandedNode>Exercise8/APP</ExpandedNode></NodeDict></Session>
+          </Tab>
+        </Tabs>
+        
+      <SelectedTab>0</SelectedTab></Wnd1></Windows>
+    <Editor>
+      
+      
+      
+      
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\Exercise8\alarm.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>74</YPos2><SelStart2>2609</SelStart2><SelEnd2>2609</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\Exercise0\led.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>111</YPos2><SelStart2>0</SelStart2><SelEnd2>0</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\Exercise8\exercise8.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>374</YPos2><SelStart2>12042</SelStart2><SelEnd2>12042</SelEnd2></Tab><ActiveTab>2</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\Exercise8\adc.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>170</YPos2><SelStart2>5167</SelStart2><SelEnd2>5167</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\Exercise1\led.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>0</YPos2><SelStart2>0</SelStart2><SelEnd2>0</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\3rdParty\Examples\Renesas\YRDKRX63N\BSP\IAR\iodefine.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>11705</YPos2><SelStart2>323332</SelStart2><SelEnd2>323337</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\3rdParty\Examples\Renesas\YRDKRX63N\BSP\bsp_ser.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>140</YPos2><SelStart2>5592</SelStart2><SelEnd2>5592</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\3rdParty\Examples\Renesas\YRDKRX63N\BSP\bsp.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>163</YPos2><SelStart2>4487</SelStart2><SelEnd2>4640</SelEnd2></Tab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
+    <Positions>
+      
+      
+      
+      
+      
+    <Top><Row0><Sizes><Toolbar-00C91488><key>iaridepm.enu1</key></Toolbar-00C91488></Sizes></Row0><Row1><Sizes/></Row1><Row2><Sizes/></Row2></Top><Left><Row0><Sizes><Wnd1><Rect><Top>-2</Top><Left>-2</Left><Bottom>517</Bottom><Right>310</Right><x>-2</x><y>-2</y><xscreen>301</xscreen><yscreen>375</yscreen><sizeHorzCX>220351</sizeHorzCX><sizeHorzCY>516529</sizeHorzCY><sizeVertCX>228404</sizeVertCX><sizeVertCY>714876</sizeVertCY></Rect></Wnd1></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd0><Rect><Top>-2</Top><Left>-2</Left><Bottom>164</Bottom><Right>1368</Right><x>-2</x><y>-2</y><xscreen>1370</xscreen><yscreen>166</yscreen><sizeHorzCX>1002928</sizeHorzCX><sizeHorzCY>228650</sizeHorzCY><sizeVertCX>220351</sizeVertCX><sizeVertCY>516529</sizeVertCY></Rect></Wnd0></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+  </Desktop>
+</Workspace>
+
+
